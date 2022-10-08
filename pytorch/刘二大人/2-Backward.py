@@ -1,0 +1,39 @@
+import torch
+import matplotlib.pyplot as plt
+
+x_data = [1.0, 2.0, 3.0]
+y_data = [2.0, 4.0, 6.0]
+w = torch.tensor([1.0]) # w的初值为1.0
+w.requires_grad = True
+
+def forward(x):
+    return w*x 
+
+def loss(x,y):
+    y_pred=forward(x)
+    return (y_pred-y)**2
+
+print("predict (before training)", 4, forward(4).item())
+
+loss_list=[]
+epoch_list=[]
+for epoch in range(100):
+    for x,y in zip(x_data,y_data):
+        l=loss(x,y)                                 #! l计算完是个张量
+        l.backward()
+        
+        print('\tgrad:', x, y, w.grad.item()) 
+        w.data = w.data - 0.01 * w.grad.data        #!! w.grad是个张量
+
+        w.grad.data.zero_()                              #!! 记得清零
+    
+    print('progress:', epoch, l.item())
+    loss_list.append(l.item())
+    epoch_list.append(epoch)
+
+print("predict (after training)", 4, forward(4).item())
+plt.plot(epoch_list,loss_list)
+plt.ylabel('cost')
+plt.xlabel('epoch')
+plt.show() 
+
